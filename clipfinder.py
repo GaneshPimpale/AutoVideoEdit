@@ -10,9 +10,7 @@ import pytesseract
 import framesToEmbeddings as fte
 import concurrent
 
-VIDEO_PATH = "/Users/harsha/Desktop/ImageProj/videoTest.mp4"
-VIDEO_PATH = "/Users/harsha/Desktop/ImageProj/updown.mp4"
-VIDEO_PATH = "/Users/harsha/Desktop/ImageProj/runningsocs.mp4"
+VIDEO_PATH = "./test_vides/..." #TODO: change file to desired test
 PROMPT = "a calendar"
 scene_list = detect(VIDEO_PATH, ContentDetector())
 
