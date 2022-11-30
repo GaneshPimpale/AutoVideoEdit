@@ -10,8 +10,8 @@ import pytesseract
 import framesToEmbeddings as fte
 import concurrent
 
-VIDEO_PATH = "./test_vides/..." #TODO: change file to desired test
-PROMPT = "a calendar"
+VIDEO_PATH = "./test_vids/random_cat.mp4" #TODO: change file to desired test
+PROMPT = "cat in bathroom"
 scene_list = detect(VIDEO_PATH, ContentDetector())
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
