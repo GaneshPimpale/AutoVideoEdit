@@ -1,14 +1,18 @@
-import cv2
-from PIL import Image
+import numpy as np
+import concurrent
+from tqdm import tqdm
+
 import torch
 import clip
-from tqdm import tqdm
-import csv
+from PIL import Image
+
+import cv2
 from scenedetect import detect, ContentDetector
-import numpy as np
 import pytesseract
+
+import csv
+
 import framesToEmbeddings as fte
-import concurrent
 
 VIDEO_PATH = "./test_vids/random_cat.mp4" #TODO: change file to desired test
 PROMPT = "cat in bathroom"
