@@ -12,6 +12,12 @@ Audio-Video Syncing:
 - TBD
 
 ## Install
+Clone and enter the repo:
+```
+git clone https://github.com/GaneshPimpale/AutoVideoEdit
+cd AutoVideoEdit
+```
+
 Create and activate conda enviorment with python 3.7:
 ```
 conda create -n AutoVideoEdit python=3.7
@@ -35,7 +41,7 @@ AVE can be used like a library (look at [edit.py] for an example).
 
 First,
 ``` python
-from Frames import AVE
+from AutoVideoEdit import AVE
 vid1 = AVE()
 ```
 
