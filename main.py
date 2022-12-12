@@ -87,7 +87,7 @@ def encodeAndCalculate_list(frames, encoded_prompt):
                 results.append(Executor.submit(encodeAndCalculate, frame, encoded_prompt))
     return [r.result() for r in results]
 
-def returnTopClips(QUERY, tipleList, num_clips = 3, data = False, name="data"):
+def returnTopClips(QUERY, tupleList, num_clips = 3, data = False, name="data"):
     fullList = []
     iteratorLen = 5
     text_features = model.encode_text(clip.tokenize([QUERY]). to(device))
