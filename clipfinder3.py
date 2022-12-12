@@ -1,5 +1,5 @@
 import numpy as np
-import tqdm
+from tqdm import tqdm
 import concurrent
 import csv
 
@@ -16,7 +16,7 @@ import pytesseract
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 cashe, text = {}, {}
-
+print("device:" + device)
 
 # Main Functions
 def getFrames(filename): 
@@ -104,7 +104,8 @@ def returnTopClips(QUERY, tupleList, num_clips = 3, data = False, name="data"):
                     cashe[i] = image_features
                 else:
                     image_features = cashe[i]
-                fullList.append(torch.cosine_similarity(image_features, text_features, dim=1).toList()[0]*100)
+                tensor = torch.cosine_similarity(image_features, text_features, dim=1)
+                fullList.append((tensor.tolist())[0]*100)
         else:
             fullList.append(-1)
     
@@ -123,7 +124,7 @@ def returnTopClips(QUERY, tupleList, num_clips = 3, data = False, name="data"):
         topClips.append(clipRange)
         fullList[clipRange[0]:clipRange[1]+1] = [0] * (clipRange[1] - clipRange[0])
         iterator += 1
-        fullList = max(fullList)
+        fullListMax = max(fullList)
     
     return topClips
 
@@ -189,12 +190,13 @@ def cos_sim(a, b):
 
 
 # Run script
-VIDEO = './test_vids/random_cat.mp4'
-QUERY = 'cat next to toilet'
+VIDEO = './test_vids/baby_penguin.mp4'
+QUERY = 'small white penguin'
 scene_list = detect(VIDEO, ContentDetector())
 tupleList = [ (scene_list[i][0].get_frames(), scene_list[i+1][0].get_frames()) for i in range(len(scene_list) - 1) ]
 myFrame, fps = getFrames(VIDEO)
 myFrameLowRes = getFrames_downscale(VIDEO)
 
 topClipIndex = returnTopClips(QUERY, tupleList, 3)
+print(topClipIndex)
 spliceVideo(topClipIndex)

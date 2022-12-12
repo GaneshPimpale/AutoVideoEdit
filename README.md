@@ -30,3 +30,33 @@ Install other dependancies:
 pip install numpy opencv-python scenedetect pytesseract
 ```
 
+## Useage
+AVE can be used like a library (look at [edit.py] for an example).
+
+First,
+``` python
+from Frames import AVE
+vid1 = AVE()
+```
+
+where ```vid1``` is a video edit instance. Multiple video editing istances can be created, however each instance will use lots of memory so be cautious.
+
+Then,
+```python
+vid1.addVideo('[Path to video]')
+vid1.addVideo('[Path to a different video]')
+# Add as many videos as needed
+
+vid1.newQuery('[Ask something here]')
+vid1.newQuery('[Ask something else here]')
+vid1.newQuery('[Ask another thing here]')
+vid1.newQuery('[Ask something here]')
+# Add as many queries as needed
+
+# To create a spliced together video:
+vid1.compile_vid()
+```
+
+Note, the order in which the ```addVideo()``` function is called does **not** matter, however, the order in which ```newQuery()``` is called **DOES MATTER** and will define the sequne in which the videos are spliced togther.
+
+Finally, calling ```.compile_vid()``` is the final function to call to compile the video.
