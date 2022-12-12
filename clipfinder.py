@@ -3,11 +3,11 @@ import concurrent
 from tqdm import tqdm
 
 import torch
-import clip
+import clip # This is important
 from PIL import Image
 
 import cv2
-from scenedetect import detect, ContentDetector
+from scenedetect import detect, ContentDetector # This is important
 import pytesseract
 
 import csv
@@ -15,7 +15,7 @@ import csv
 import framesToEmbeddings as fte
 
 VIDEO_PATH = "./test_vids/random_cat.mp4" #TODO: change file to desired test
-PROMPT = "cat in bathroom"
+PROMPT = "cat next to toilet"
 scene_list = detect(VIDEO_PATH, ContentDetector())
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
