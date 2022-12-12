@@ -226,10 +226,9 @@ class AVE:
         for clip_pkg in clip_pkgs:
             clip = clip_pkg[0]
             vid_data = self.VID_DATA[clip_pkg[1]]
-            for i in range(len(clip)):
-                for j in range(clip[i][0], clip[i][1]):
-                    myFrame = vid_data[1]
-                    out.write(myFrame[j])
+            for j in range(clip[0], clip[1]):
+                myFrame = vid_data[1]
+                out.write(myFrame[j])
         out.release()
 
     # Extra features
