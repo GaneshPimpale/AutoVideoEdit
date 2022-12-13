@@ -31,8 +31,7 @@ class AVE:
         print("Compiling video...")
 
         # Preprocess each video
-        for VIDEO in self.VIDEOS:
-            print("Processing: " + VIDEO)
+        for VIDEO in tqdm(self.VIDEOS):
             scene_list = detect(VIDEO, ContentDetector())
             tupleList = [ (scene_list[i][0].get_frames(), scene_list[i+1][0].get_frames()) for i in range(len(scene_list) - 1) ]
             myFrame, fps = self.getFrames(VIDEO)
@@ -52,7 +51,7 @@ class AVE:
                 for clip in clips:
                     clip_pkg = [clip, self.VID_DATA.index(vid_data), score]
                     clip_pkgs.append(clip_pkg)
-
+            
         print(clip_pkgs)
 
         # Choose the clips that scored higher:
