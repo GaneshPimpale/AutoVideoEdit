@@ -30,6 +30,7 @@ class AVE:
     def compile_vid(self):
         print("Compiling video...")
 
+        # Preprocess each video
         for VIDEO in self.VIDEOS:
             print("Processing: " + VIDEO)
             scene_list = detect(VIDEO, ContentDetector())
@@ -39,6 +40,7 @@ class AVE:
             vid_process = [tupleList, myFrame, myFrameLowRes, fps]
             self.VID_DATA.append(vid_process)
         
+        # Process each query
         clip_pkgs = [] # [clip, vid_index]
         for QUERY in self.QUERIES:
             print("Processing: " + QUERY)
@@ -46,13 +48,30 @@ class AVE:
                 self.myFrame = vid_data[1]
                 self.myFrameLowRes = vid_data[2]
                 self.fps = vid_data[3]
-                clips = self.returnTopClips(QUERY, vid_data[0], 1)
+                clips, score = self.returnTopClips(QUERY, vid_data[0], 1)
                 for clip in clips:
-                    clip_pkg = [clip, self.VID_DATA.index(vid_data)]
+                    clip_pkg = [clip, self.VID_DATA.index(vid_data), score]
                     clip_pkgs.append(clip_pkg)
 
         print(clip_pkgs)
-        self.spliceVideo(clip_pkgs)
+
+        # Choose the clips that scored higher:
+        clip_pkgs_splice = []
+        i = 0
+        while i + len(self.VIDEOS) <= len(clip_pkgs):
+            pkgs = clip_pkgs[i:i+len(self.VIDEOS)]
+            maxScore = 0
+            maxScoreIndex = -1
+            for j in range(len(pkgs)):
+                score = pkgs[j][2]
+                if score > maxScore:
+                    maxScore = score
+                    maxScoreIndex = i+j
+            clip_pkgs_splice.append(clip_pkgs[maxScoreIndex])
+            i += len(self.VIDEOS)
+        
+
+        self.spliceVideo(clip_pkgs_splice)
 
     def addVideo(self, fileName):
         """ Add filepath of video to list of videos
@@ -215,7 +234,7 @@ class AVE:
             iterator += 1
             fullListMax = max(fullList)
         
-        return topClips
+        return topClips, fullListMax
 
     def spliceVideo(self, clip_pkgs):
         """
