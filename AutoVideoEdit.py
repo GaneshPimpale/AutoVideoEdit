@@ -30,7 +30,7 @@ class AVE:
         self.threadingEmbeddings = []
         self.iteratorLen = 5
 
-    def compile_vid(self):
+    def compile_vid(self, fileName):
         """ Run all steps of algorithm and compile video
         """
         print("Compiling video...")
@@ -42,6 +42,7 @@ class AVE:
             tupleList = [ (scene_list[i][0].get_frames(), scene_list[i+1][0].get_frames()) for i in range(len(scene_list) - 1) ]
             myFrame, fps = self.getFrames(VIDEO)
             myFrameLowRes = self.getFrames_downscale(VIDEO)
+            #self.preCompute(fps, myFrame, myFrameLowRes) # NOTE: TEST
             vid_process = [tupleList, myFrame, myFrameLowRes, fps]
             self.VID_DATA.append(vid_process)
         
@@ -76,7 +77,7 @@ class AVE:
             i += len(self.VIDEOS)
         
 
-        self.spliceVideo(clip_pkgs_splice)
+        self.spliceVideo(clip_pkgs_splice, fileName)
 
     def addVideo(self, fileName):
         """ Add filepath of video to list of videos
@@ -202,7 +203,7 @@ class AVE:
 
     def returnTopClips(self, QUERY, tupleList, num_clips = 3, data = True, name="data"):
         fullList = []
-        text_features = model.encode_text(clip.tokenize([QUERY]). to(device))
+        text_features = model.encode_text(clip.tokenize([QUERY]).to(device))
 
         for i in tqdm(range(len(self.myFrame))):
             if i % self.iteratorLen == 0:
@@ -222,7 +223,7 @@ class AVE:
                 fullList.append(-1)
         
         if data:
-            csvFormat = [[i] for i in fullList]
+            csvFormat = [[i] for i in fullList if i > 0]
 
             with open(name + '.csv', 'w', newline='') as f:
                 writer = csv.writer(f)
@@ -240,12 +241,12 @@ class AVE:
         
         return topClips, fullListMax
 
-    def spliceVideo(self, clip_pkgs):
+    def spliceVideo(self, clip_pkgs, fileName):
         """ Turns a set of clip packages into a combined video and exports it
         :param clip_pkgs: clips and their meta data
         """
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter('topclips.mp4', fourcc, 30, (self.myFrame[0].shape[1], self.myFrame[0].shape[0]))
+        out = cv2.VideoWriter(fileName, fourcc, 30, (self.myFrame[0].shape[1], self.myFrame[0].shape[0]))
         for clip_pkg in clip_pkgs:
             clip = clip_pkg[0]
             vid_data = self.VID_DATA[clip_pkg[1]]
@@ -314,12 +315,12 @@ class AVE:
                 threadCashe[index] = tempThreads[i][j]
                 index += 1
 
-    def preCompute(self, fps):
+    def preCompute(self, fps, myFrame, myFrameLowRes):
         last_text, img_text = "", ""
 
-        for i in tqdm(range(len(self.myFrame))):
+        for i in tqdm(range(len(myFrame))):
             if i % self.iteratorLen and i not in cashe:
-                frame = self.myFrameLowRes[i]
+                frame = myFrameLowRes[i]
                 image = Image.fromarray(frame)
                 image = preprocess(image).unsqueeze(0).to(device)
                 with torch.no_grad():
@@ -327,7 +328,7 @@ class AVE:
                     cashe[i] = image_features
             
             if i % round(fps) == 0 and i not in cashe:
-                img_text = self.ocr(self.myFrameLowRes)
+                img_text = self.ocr(myFrameLowRes)
 
                 if img_text != "" and img_text not in text:
                     text[img_text] = [i]

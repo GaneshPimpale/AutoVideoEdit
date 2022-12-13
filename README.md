@@ -60,7 +60,7 @@ vid1.newQuery('[Ask something here]')
 # Add as many queries as needed
 
 # To create a spliced together video:
-vid1.compile_vid()
+vid1.compile_vid(fileName='[filename].mp4')
 ```
 
 Note, the order in which the ```addVideo()``` function is called does **not** matter, however, the order in which ```newQuery()``` is called **DOES MATTER** and will define the sequne in which the videos are spliced togther.
