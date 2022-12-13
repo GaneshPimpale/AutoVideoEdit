@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 import concurrent
+import threading
 import csv
 
 # CLIP dependancies
@@ -26,6 +27,8 @@ class AVE:
         self.VIDEOS = []
         self.VID_DATA = [] #NOTE: Indexes match with self.VIDEOS
         self.QUERIES = []
+        self.threadingEmbeddings = []
+        self.iteratorLen = 5
 
     def compile_vid(self):
         """ Run all steps of algorithm and compile video
@@ -33,6 +36,7 @@ class AVE:
         print("Compiling video...")
 
         # Preprocess each video
+        print("Preprocessing videos...")
         for VIDEO in tqdm(self.VIDEOS):
             scene_list = detect(VIDEO, ContentDetector())
             tupleList = [ (scene_list[i][0].get_frames(), scene_list[i+1][0].get_frames()) for i in range(len(scene_list) - 1) ]
@@ -198,11 +202,10 @@ class AVE:
 
     def returnTopClips(self, QUERY, tupleList, num_clips = 3, data = True, name="data"):
         fullList = []
-        iteratorLen = 5
         text_features = model.encode_text(clip.tokenize([QUERY]). to(device))
 
         for i in tqdm(range(len(self.myFrame))):
-            if i % iteratorLen == 0:
+            if i % self.iteratorLen == 0:
                 frame = self.myFrameLowRes[i]
                 image = Image.fromarray(frame)
                 image = preprocess(image).unsqueeze(0).to(device)
@@ -251,7 +254,89 @@ class AVE:
                 out.write(myFrame[j])
         out.release()
 
-    # Extra features
+    # Multi threading
+    def multiThread(self, myFrameLowRes, taskID):
+        """ Allow the algorithm to multithread #TODO: Still needs to be fixed
+        :param taskID: 
+        """
+        cashe = {}
+        for i in range(len(myFrameLowRes)):
+            if i % self.iteratorLen == 0:
+                frame = myFrameLowRes[i]
+                image = Image.fromarray(frame)
+                image = preprocess(image).unsqueeze(0).to(device)
+                with torch.no_grad():
+                    image_features = model.encode_image(image)
+                    cashe[i] = image_features
+        cashe['ID'] = taskID
+        self.threadingEmbeddings.append(cashe)
+        return
+    
+    def preComputeFast(self, numThreads):
+        """ Run PreCompute using multithreading
+        :param numThreads: 
+        """
+        def dictCut(dict, start, end):
+            # Cut out parts of dictionaries from start to end
+            newDict = {}
+            indexVal = 0
+            for i in range(start, end):
+                newDict[indexVal] = dict[i]
+                indexVal += 1
+            return newDict
+
+        shardSize = len(self.myFrameLowRes) // numThreads
+        myThreads = []
+
+        for i in range(numThreads):
+            start = i*shardSize
+            end = (i+1)*shardSize
+            if i == numThreads -1:
+                end = len(self.myFrameLowRes)
+
+            thread = threading.Thread(target=self.multiThread, args=(dictCut(self.myFrameLowRes, start, end), i))
+            myThreads.append(thread)
+            thread.start
+        
+        for thread in myThreads:
+            thread.join()
+
+        tempThreads = {}
+        for i in range(len(self.threadingEmbeddings)):
+            ID = self.threadingEmbeddings[i]['ID']
+            self.threadingEmbeddings[i].pop('ID')
+            tempThreads[ID] = self.threadingEmbeddings[i]
+
+        index = 0
+        threadCashe = {}
+        for i in range(len(tempThreads)):
+            for j in range(len(tempThreads[i])):
+                threadCashe[index] = tempThreads[i][j]
+                index += 1
+
+    def preCompute(self, fps):
+        last_text, img_text = "", ""
+
+        for i in tqdm(range(len(self.myFrame))):
+            if i % self.iteratorLen and i not in cashe:
+                frame = self.myFrameLowRes[i]
+                image = Image.fromarray(frame)
+                image = preprocess(image).unsqueeze(0).to(device)
+                with torch.no_grad():
+                    image_features = model.encode_image(image)
+                    cashe[i] = image_features
+            
+            if i % round(fps) == 0 and i not in cashe:
+                img_text = self.ocr(self.myFrameLowRes)
+
+                if img_text != "" and img_text not in text:
+                    text[img_text] = [i]
+                elif img_text in text and img_text != last_text:
+                    text[img_text] = text[img_text] + [i]
+                last_text = img_text
+    
+    
+    # OCR
     def ocr(self, frame):
         """ Extract the text displayed in a frame
         :param frame: referance to image frame
@@ -260,6 +345,7 @@ class AVE:
         text = pytesseract.image_to_string(frame)
         return text
 
+    
     # Performace metrics
     def euc_dist(self, a, b):
         """ Measure the euclidean distance between two tensors

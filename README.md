@@ -33,7 +33,7 @@ pip install git+https://github.com/openai/CLIP.git
 
 Install other dependancies:
 ```
-pip install numpy opencv-python scenedetect pytesseract
+pip install numpy opencv-python scenedetect pytesseract multiprocess
 ```
 
 ## Useage
