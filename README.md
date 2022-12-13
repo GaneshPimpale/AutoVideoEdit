@@ -1,4 +1,4 @@
-# OpenAutoVideoEdit 
+# AutoVideoEdit 
 
 ## Features
 Clip searching: 
