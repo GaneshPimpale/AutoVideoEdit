@@ -28,6 +28,8 @@ class AVE:
         self.QUERIES = []
 
     def compile_vid(self):
+        """ Run all steps of algorithm and compile video
+        """
         print("Compiling video...")
 
         # Preprocess each video
@@ -107,7 +109,7 @@ class AVE:
         return self.QUERIES
 
     def getFrames(self, filename): 
-        """ return list of frames and FPS from filename
+        """ Return list of frames and FPS from filename
         :param filename: string of filepath
         :return frames: list of images
         :return fps: integer of frames per second
@@ -175,12 +177,12 @@ class AVE:
         return [r.result() for r in results]
 
     def getClipRange(self, index, tupleList, frames, fps):
-        """
-        :param index:
-        :param tupleList:
-        :param frames: 
-        :param fps:
-        :return: 
+        """ Get the range of a scene from a single frame
+        :param index: index of frame in self.myFrame
+        :param tupleList: List of clip tuples (start frame, end frame)
+        :param frames: list of frames
+        :param fps: integer proportional to the frames per second
+        :return: return (start, end) tuple
         """
         for i in range(len(tupleList)):
             if index >= tupleList[i][0] and index <= tupleList[i][1]:
@@ -236,8 +238,8 @@ class AVE:
         return topClips, fullListMax
 
     def spliceVideo(self, clip_pkgs):
-        """
-        :param topClipIndex: 
+        """ Turns a set of clip packages into a combined video and exports it
+        :param clip_pkgs: clips and their meta data
         """
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter('topclips.mp4', fourcc, 30, (self.myFrame[0].shape[1], self.myFrame[0].shape[0]))
@@ -275,7 +277,10 @@ class AVE:
         """
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
+
+# Internal debug
 if __name__ == '__main__':
     print('Running Frammes.py internal debug...')
+    print('Nothing here')
 
 
