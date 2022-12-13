@@ -41,7 +41,7 @@ AVE can be used like a library (look at [edit.py] for an example).
 
 First,
 ``` python
-from OpenAutoVideoEdit import AVE
+from AutoVideoEdit import AVE
 vid1 = AVE()
 ```
 
