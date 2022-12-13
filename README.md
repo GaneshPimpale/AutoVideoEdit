@@ -1,4 +1,4 @@
-# AutoVideoEdit (Frames)
+# OpenAutoVideoEdit 
 
 ## Features
 Clip searching: 
@@ -41,7 +41,7 @@ AVE can be used like a library (look at [edit.py] for an example).
 
 First,
 ``` python
-from AutoVideoEdit import AVE
+from OpenAutoVideoEdit import AVE
 vid1 = AVE()
 ```
 
@@ -66,3 +66,5 @@ vid1.compile_vid()
 Note, the order in which the ```addVideo()``` function is called does **not** matter, however, the order in which ```newQuery()``` is called **DOES MATTER** and will define the sequne in which the videos are spliced togther.
 
 Finally, calling ```.compile_vid()``` is the final function to call to compile the video.
+
+NOTE: If the application exits with no code (windows) or killed by the system, you have run out memory. 
